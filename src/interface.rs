@@ -1,10 +1,10 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
-use embedded_hal::spi::SpiBus;
+use embedded_hal::spi::SpiDevice;
 
 const RESET_DELAY_MS: u32 = 10;
 
-pub struct Interface<SPI: SpiBus, BUSY: InputPin, CS: OutputPin, DC: OutputPin, RESET: OutputPin> {
+pub struct Interface<SPI: SpiDevice, BUSY: InputPin, CS: OutputPin, DC: OutputPin, RESET: OutputPin> {
     /// SPI 接口
     spi: SPI,
     /// Active low busy pin (input)
@@ -35,7 +35,7 @@ pub trait DisplayInterface {
 
 impl<SPI, BUSY, CS, DC, RESET> Interface<SPI, BUSY, CS, DC, RESET>
 where
-    SPI: SpiBus,
+    SPI: SpiDevice,
     BUSY: InputPin,
     CS: OutputPin,
     DC: OutputPin,
@@ -65,7 +65,7 @@ where
 
 impl<SPI, BUSY, CS, DC, RESET> DisplayInterface for Interface<SPI, BUSY, CS, DC, RESET>
 where
-    SPI: SpiBus,
+    SPI: SpiDevice,
     BUSY: InputPin,
     CS: OutputPin,
     DC: OutputPin,
