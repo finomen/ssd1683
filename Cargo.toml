@@ -1,0 +1,15 @@
+[package]
+name = "ssd1683"
+version = "0.1.0"
+authors = ["nihilityer <nihilityer@mail.nihilityer.top>"]
+description = "Driver for the SSD1683 e-Paper display (EPD) controller, for use with embedded-hal"
+documentation = "https://docs.rs/ssd1683"
+repository = "https://github.com/nihilityer/ssd1683"
+readme = "README.md"
+keywords = ["embedded", "epd", "epaper", "display", "ssd1683"]
+categories = ["embedded", "no-std"]
+license = "MIT"
+
+[dependencies]
+thiserror = { version = "2.0" }
+embedded-hal = { version = "1.0" }
