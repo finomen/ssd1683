@@ -9,7 +9,14 @@ readme = "README.md"
 keywords = ["embedded", "epd", "epaper", "display", "ssd1683"]
 categories = ["embedded", "no-std"]
 license = "MIT"
+edition = "2024"
+
+[features]
+default = ["graphics"]
+use_red = ["graphics"]
+graphics = ["embedded-graphics-core"]
 
 [dependencies]
 thiserror = { version = "2.0" }
 embedded-hal = { version = "1.0" }
+embedded-graphics-core = { version = "0.4", optional = true }

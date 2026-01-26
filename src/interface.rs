@@ -1,6 +1,7 @@
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
 use embedded_hal::spi::SpiDevice;
+use crate::error::Error;
 
 const RESET_DELAY_MS: u32 = 10;
 
@@ -52,13 +53,14 @@ where
         }
     }
 
+    #[allow(clippy::type_complexity)]
     fn write(
         &mut self,
         data: &[u8],
-    ) -> Result<(), crate::error::Error<SPI::Error, CS::Error, DC::Error, RESET::Error>> {
-        self.cs.set_low().map_err(crate::error::Error::Cs)?;
-        self.spi.write(data).map_err(crate::error::Error::Spi)?;
-        self.cs.set_high().map_err(crate::error::Error::Cs)?;
+    ) -> Result<(), Error<SPI::Error, CS::Error, DC::Error, RESET::Error>> {
+        self.cs.set_low().map_err(Error::Cs)?;
+        self.spi.write(data).map_err(Error::Spi)?;
+        self.cs.set_high().map_err(Error::Cs)?;
         Ok(())
     }
 }
@@ -71,33 +73,29 @@ where
     DC: OutputPin,
     RESET: OutputPin,
 {
-    type Error = crate::error::Error<SPI::Error, CS::Error, DC::Error, RESET::Error>;
+    type Error = Error<SPI::Error, CS::Error, DC::Error, RESET::Error>;
 
     fn send_command(&mut self, command: u8) -> Result<(), Self::Error> {
-        self.dc.set_low().map_err(crate::error::Error::Dc)?;
+        self.dc.set_low().map_err(Error::Dc)?;
         self.write(&[command])?;
-        self.dc.set_high().map_err(crate::error::Error::Dc)?;
-
+        self.dc.set_high().map_err(Error::Dc)?;
         Ok(())
     }
 
     fn send_data(&mut self, data: &[u8]) -> Result<(), Self::Error> {
-        self.dc.set_high().map_err(crate::error::Error::Dc)?;
+        self.dc.set_high().map_err(Error::Dc)?;
         self.write(data)
     }
 
     fn reset<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), Self::Error> {
-        self.reset.set_low().map_err(crate::error::Error::Reset)?;
+        self.reset.set_low().map_err(Error::Reset)?;
         delay.delay_ms(RESET_DELAY_MS);
-        self.reset.set_high().map_err(crate::error::Error::Reset)?;
+        self.reset.set_high().map_err(Error::Reset)?;
         delay.delay_ms(RESET_DELAY_MS);
         Ok(())
     }
 
     fn busy_wait(&mut self) {
-        while match self.busy.is_high() {
-            Ok(x) => x,
-            _ => false,
-        } {}
+        while self.busy.is_high().unwrap_or_default() {}
     }
 }

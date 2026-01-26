@@ -1,7 +1,7 @@
-use interface::DisplayInterface;
+use crate::DisplayInterface;
 
 /// 填充数据缓冲区（数组）并返回一个包含命令和填充缓冲区中适当大小切片的元组。
-/// ```rust
+/// ```
 /// let mut buf = [0u8; 4];
 /// let (command, data) = pack!(buf, 0x3C, [0x12, 0x34]);
 /// ```
@@ -86,6 +86,9 @@ pub enum Command {
     /// 0x12: 执行软复位，并将所有参数重置为默认值
     /// 执行期间 BUSY 信号将保持高电平。
     SoftReset,
+    /// 0x18: 读取温度传感器寄存器
+    /// a[7:0]: 0x48=外部温度传感器；0x80=内部温度传感器
+    ReadTemperatureSensor(u8),
     /// 0x1A: 写入温度传感器寄存器
     WriteTemperatureSensor(u8),
     /// 0x20: 激活显示更新序列。执行期间 BUSY 信号将保持高电平。
@@ -156,10 +159,10 @@ impl Command {
                     IncrementAxis::Horizontal => 0b000,
                     IncrementAxis::Vertical => 0b100,
                 };
-
                 pack!(buf, 0x11, [axis | mode])
             }
             SoftReset => pack!(buf, 0x12, []),
+            ReadTemperatureSensor(data) => pack!(buf, 0x18, [data]),
             WriteTemperatureSensor(data) => {
                 pack!(buf, 0x1A, [data])
             }
@@ -188,7 +191,7 @@ impl Command {
         };
 
         interface.send_command(command)?;
-        if data.len() == 0 {
+        if data.is_empty() {
             Ok(())
         } else {
             interface.send_data(data)
