@@ -10,6 +10,7 @@ keywords = ["embedded", "epd", "epaper", "display", "ssd1683"]
 categories = ["embedded", "no-std"]
 license = "MIT"
 edition = "2024"
+publish = ["gitea", "crates-io"]
 
 [features]
 default = ["graphics"]
