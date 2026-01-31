@@ -18,6 +18,6 @@ use_red = ["graphics"]
 graphics = ["embedded-graphics-core"]
 
 [dependencies]
-thiserror = { version = "2.0" }
+thiserror = { version = "2.0", default-features = false }
 embedded-hal = { version = "1.0" }
 embedded-graphics-core = { version = "0.4", optional = true }

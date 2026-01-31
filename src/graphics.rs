@@ -6,13 +6,13 @@ use crate::command::{Command, DataEntryMode, DeepSleepMode, IncrementAxis};
 use crate::error::Error;
 use crate::graphics::color::EpdColor;
 use crate::graphics::config::{Config, Rotation};
-use crate::graphics::tools::{RegionIterator, calculate_dirty_area, rotation};
+use crate::graphics::tools::{calculate_dirty_area, rotation, RegionIterator};
 use crate::{DisplayInterface, Interface};
-use embedded_graphics_core::Pixel;
 use embedded_graphics_core::prelude::{DrawTarget, OriginDimensions, Point, Size};
+use embedded_graphics_core::Pixel;
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
-use embedded_hal::spi::SpiDevice;
+use embedded_hal::spi::SpiBus;
 
 const WIDTH: u32 = 400;
 const HEIGHT: u32 = 300;
@@ -28,7 +28,7 @@ pub enum UpdateType {
 
 pub struct Graphics<SPI, BUSY, CS, DC, RESET, DELAY>
 where
-    SPI: SpiDevice,
+    SPI: SpiBus,
     BUSY: InputPin,
     CS: OutputPin,
     DC: OutputPin,
@@ -48,7 +48,7 @@ where
 
 impl<SPI, BUSY, CS, DC, RESET, DELAY> Graphics<SPI, BUSY, CS, DC, RESET, DELAY>
 where
-    SPI: SpiDevice,
+    SPI: SpiBus,
     BUSY: InputPin,
     CS: OutputPin,
     DC: OutputPin,
@@ -225,7 +225,7 @@ where
 
 impl<SPI, BUSY, CS, DC, RESET, DELAY> OriginDimensions for Graphics<SPI, BUSY, CS, DC, RESET, DELAY>
 where
-    SPI: SpiDevice,
+    SPI: SpiBus,
     BUSY: InputPin,
     CS: OutputPin,
     DC: OutputPin,
@@ -244,7 +244,7 @@ where
 
 impl<SPI, BUSY, CS, DC, RESET, DELAY> DrawTarget for Graphics<SPI, BUSY, CS, DC, RESET, DELAY>
 where
-    SPI: SpiDevice,
+    SPI: SpiBus,
     BUSY: InputPin,
     CS: OutputPin,
     DC: OutputPin,
