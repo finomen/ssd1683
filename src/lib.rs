@@ -1,13 +1,15 @@
 #![no_std]
-extern crate embedded_hal;
 extern crate alloc;
-extern crate embedded_graphics_core;
+extern crate embedded_hal;
 
 pub mod command;
-pub mod interface;
 pub mod error;
 #[cfg(feature = "graphics")]
 pub mod graphics;
+pub mod interface;
 
-pub use interface::DisplayInterface;
-pub use interface::Interface;
+pub use command::*;
+pub use error::*;
+#[cfg(feature = "graphics")]
+pub use graphics::*;
+pub use interface::*;

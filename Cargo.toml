@@ -12,6 +12,8 @@ license = "MIT"
 edition = "2024"
 publish = ["gitea", "crates-io"]
 
+exclude = ["example"]
+
 [features]
 default = ["graphics"]
 use_red = ["graphics"]
@@ -21,3 +23,4 @@ graphics = ["embedded-graphics-core"]
 thiserror = { version = "2.0", default-features = false }
 embedded-hal = { version = "1.0" }
 embedded-graphics-core = { version = "0.4", optional = true }
+log = { version = "0.4", default-features = false }

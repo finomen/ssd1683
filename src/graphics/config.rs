@@ -10,7 +10,13 @@ pub enum Rotation {
 pub struct Config {
     pub(crate) width: u16,
     pub(crate) height: u16,
-    pub(crate) rotation: Rotation
+    pub(crate) rotation: Rotation,
+}
+
+impl Config {
+    pub fn with_rotation(self, rotation: Rotation) -> Self {
+        Self { rotation, ..self }
+    }
 }
 
 impl Default for Config {
@@ -18,7 +24,7 @@ impl Default for Config {
         Self {
             width: 400,
             height: 300,
-            rotation: Rotation::Rotate180,
+            rotation: Rotation::Rotate0,
         }
     }
 }

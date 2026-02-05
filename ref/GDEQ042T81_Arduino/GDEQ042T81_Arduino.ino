@@ -5,13 +5,13 @@
 #include "Ap_29demo.h"  
 
 void setup() {
-   pinMode(A14, INPUT);  //BUSY
-   pinMode(A15, OUTPUT); //RES 
-   pinMode(A16, OUTPUT); //DC   
-   pinMode(A17, OUTPUT); //CS   
+   pinMode(4, INPUT);  //BUSY
+   pinMode(8, OUTPUT); //RES 
+   pinMode(9, OUTPUT); //DC   
+   pinMode(10, OUTPUT); //CS   
    //SPI
    SPI.beginTransaction(SPISettings(10000000, MSBFIRST, SPI_MODE0)); 
-   SPI.begin ();  
+   SPI.begin (12, -1, 11, -1);  
 }
 
 //Tips//

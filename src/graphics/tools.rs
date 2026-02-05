@@ -1,15 +1,16 @@
 use crate::graphics::config::Rotation;
 
+#[derive(Debug)]
 pub struct DirtyRect {
     pub min_byte_col: u8,
-    pub min_y: u16,
     pub max_byte_col: u8,
+    pub min_y: u16,
     pub max_y: u16,
 }
 
 pub struct RegionIterator<'buf> {
     buffer: &'buf [u8],
-    stride: usize, 
+    stride: usize,
     current_y: usize,
     end_y: usize,
     col_start: usize,
@@ -74,8 +75,8 @@ pub fn calculate_dirty_area(buffer: &[u8], width: u32) -> Option<DirtyRect> {
     } else {
         Some(DirtyRect {
             min_byte_col,
-            min_y,
             max_byte_col,
+            min_y,
             max_y,
         })
     }
@@ -101,7 +102,7 @@ impl<'buf> Iterator for RegionIterator<'buf> {
         if self.current_y > self.end_y {
             return None;
         }
-        
+
         let start = self.current_y * self.stride + self.col_start;
         let end = start + self.col_len;
 

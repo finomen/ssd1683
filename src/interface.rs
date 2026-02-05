@@ -1,30 +1,28 @@
 use crate::error::Error;
 use embedded_hal::delay::DelayNs;
 use embedded_hal::digital::{InputPin, OutputPin};
-use embedded_hal::spi::SpiBus;
+use embedded_hal::spi::SpiDevice;
 
 const RESET_DELAY_MS: u32 = 10;
 
-pub struct Interface<SPI: SpiBus, BUSY: InputPin, CS: OutputPin, DC: OutputPin, RESET: OutputPin> {
+pub struct Interface<SPI: SpiDevice, BUSY: InputPin, RESET: OutputPin, DC: OutputPin> {
     /// SPI 接口
     spi: SPI,
     /// Active low busy pin (input)
     busy: BUSY,
-    /// CS (chip select) for SPI (output)
-    cs: CS,
-    /// Data/Command Control Pin (High for data, Low for command) (output)
-    dc: DC,
     /// Pin for reset the controller (output)
     reset: RESET,
+    /// Data/Command Control Pin (High for data, Low for command) (output)
+    dc: DC,
 }
 
 /// Trait implemented by displays to provide implementation of core functionality.
 pub trait DisplayInterface {
     type Error;
-    /// 发送指令到控制器
+    /// 发送指令
     fn send_command(&mut self, command: u8) -> Result<(), Self::Error>;
 
-    /// 发送指令数据
+    /// 发送数据
     fn send_data(&mut self, data: &[u8]) -> Result<(), Self::Error>;
 
     /// 重置控制器
@@ -34,57 +32,42 @@ pub trait DisplayInterface {
     fn busy_wait(&mut self);
 }
 
-impl<SPI, BUSY, CS, DC, RESET> Interface<SPI, BUSY, CS, DC, RESET>
+impl<SPI, BUSY, RESET, DC> Interface<SPI, BUSY, RESET, DC>
 where
-    SPI: SpiBus,
+    SPI: SpiDevice,
     BUSY: InputPin,
-    CS: OutputPin,
-    DC: OutputPin,
     RESET: OutputPin,
+    DC: OutputPin,
 {
-    /// 创建底层控制器交互接口
-    pub fn new(spi: SPI, cs: CS, busy: BUSY, dc: DC, reset: RESET) -> Self {
+    pub fn new(spi: SPI, busy: BUSY, reset: RESET, dc: DC) -> Self {
         Self {
             spi,
-            cs,
             busy,
-            dc,
             reset,
+            dc,
         }
-    }
-
-    #[allow(clippy::type_complexity)]
-    fn write(
-        &mut self,
-        data: &[u8],
-    ) -> Result<(), Error<SPI::Error, CS::Error, DC::Error, RESET::Error>> {
-        self.cs.set_low().map_err(Error::Cs)?;
-        self.spi.write(data).map_err(Error::Spi)?;
-        self.cs.set_high().map_err(Error::Cs)?;
-        Ok(())
     }
 }
 
-impl<SPI, BUSY, CS, DC, RESET> DisplayInterface for Interface<SPI, BUSY, CS, DC, RESET>
+impl<SPI, BUSY, RESET, DC> DisplayInterface for Interface<SPI, BUSY, RESET, DC>
 where
-    SPI: SpiBus,
+    SPI: SpiDevice,
     BUSY: InputPin,
-    CS: OutputPin,
-    DC: OutputPin,
     RESET: OutputPin,
+    DC: OutputPin,
 {
-    type Error = Error<SPI::Error, CS::Error, DC::Error, RESET::Error>;
+    type Error = Error<SPI::Error, RESET::Error, DC::Error>;
 
     fn send_command(&mut self, command: u8) -> Result<(), Self::Error> {
         self.dc.set_low().map_err(Error::Dc)?;
-        self.write(&[command])?;
-        self.dc.set_high().map_err(Error::Dc)?;
+        self.spi.write(&[command]).map_err(Error::Spi)?;
         Ok(())
     }
 
     fn send_data(&mut self, data: &[u8]) -> Result<(), Self::Error> {
         self.dc.set_high().map_err(Error::Dc)?;
-        self.write(data)
+        self.spi.write(data).map_err(Error::Spi)?;
+        Ok(())
     }
 
     fn reset<D: DelayNs>(&mut self, delay: &mut D) -> Result<(), Self::Error> {
