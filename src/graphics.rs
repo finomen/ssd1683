@@ -97,6 +97,8 @@ where
                 self.update_part(dirty_rect)?;
             }
         }
+        #[cfg(not(feature = "use_red"))]
+        self.red_buffer.copy_from_slice(self.black_buffer);
         self.dirty_buffer.iter_mut().for_each(|d| *d = 0);
         self.update_count += 1;
         self.deep_sleep(DeepSleepMode::PreserveRAM)?;
@@ -133,7 +135,6 @@ where
             Command::WriteRamRed.execute(&mut self.interface)?;
             self.interface.send_data(self.red_buffer)?;
         }
-
         // refresh
         Command::DisplayUpdateControl2(0xF7).execute(&mut self.interface)?;
         Command::MasterActivation.execute(&mut self.interface)?;
@@ -147,11 +148,15 @@ where
         self.interface.reset(&mut self.delay)?;
         Command::SoftReset.execute(&mut self.interface)?;
         self.interface.busy_wait();
+        Command::DriverOutputControl(self.config.height, 0x00).execute(&mut self.interface)?;
         Command::DisplayUpdateControl1(0x4000).execute(&mut self.interface)?;
         Command::BorderWaveform(0x05).execute(&mut self.interface)?;
         Command::WriteTemperatureSensor(0x6E).execute(&mut self.interface)?;
+
         Command::DisplayUpdateControl2(0x91).execute(&mut self.interface)?;
         Command::MasterActivation.execute(&mut self.interface)?;
+        self.interface.busy_wait();
+
         Command::DataEntryMode(
             DataEntryMode::IncrementYIncrementX,
             IncrementAxis::Horizontal,
@@ -188,6 +193,14 @@ where
         info!("graphics update part");
         // init
         self.interface.reset(&mut self.delay)?;
+        Command::SoftReset.execute(&mut self.interface)?;
+        self.interface.busy_wait();
+        Command::DriverOutputControl(self.config.height, 0x00).execute(&mut self.interface)?;
+        Command::DataEntryMode(
+            DataEntryMode::IncrementYIncrementX,
+            IncrementAxis::Horizontal,
+        )
+        .execute(&mut self.interface)?;
         Command::DisplayUpdateControl1(0x0000).execute(&mut self.interface)?;
         Command::BorderWaveform(0x80).execute(&mut self.interface)?;
         Command::StartEndXPosition(dirty_rect.min_byte_col, dirty_rect.max_byte_col)
