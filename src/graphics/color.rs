@@ -2,6 +2,7 @@
 use embedded_graphics_core::pixelcolor::raw::RawU1;
 #[cfg(feature = "use_red")]
 use embedded_graphics_core::pixelcolor::raw::RawU2;
+use embedded_graphics_core::pixelcolor::{Rgb555, Rgb565, Rgb888, RgbColor};
 use embedded_graphics_core::prelude::PixelColor;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -49,6 +50,36 @@ impl From<u8> for EpdColor {
             #[cfg(feature = "use_red")]
             0b10 | 0b11 => EpdColor::Red,
             _ => EpdColor::White,
+        }
+    }
+}
+
+impl From<Rgb555> for EpdColor {
+    fn from(value: Rgb555) -> Self {
+        if (value.r() > 0) {
+            EpdColor::Black
+        } else {
+            EpdColor::White
+        }
+    }
+}
+
+impl From<Rgb565> for EpdColor {
+    fn from(value: Rgb565) -> Self {
+        if (value.r() > 0) {
+            EpdColor::Black
+        } else {
+            EpdColor::White
+        }
+    }
+}
+
+impl From<Rgb888> for EpdColor {
+    fn from(value: Rgb888) -> Self {
+        if (value.r() > 0) {
+            EpdColor::Black
+        } else {
+            EpdColor::White
         }
     }
 }
