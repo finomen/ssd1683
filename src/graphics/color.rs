@@ -56,7 +56,7 @@ impl From<u8> for EpdColor {
 
 impl From<Rgb555> for EpdColor {
     fn from(value: Rgb555) -> Self {
-        if (value.r() > 0) {
+        if value.r() > 0 {
             EpdColor::Black
         } else {
             EpdColor::White
@@ -66,7 +66,7 @@ impl From<Rgb555> for EpdColor {
 
 impl From<Rgb565> for EpdColor {
     fn from(value: Rgb565) -> Self {
-        if (value.r() > 0) {
+        if value.r() > 0 {
             EpdColor::Black
         } else {
             EpdColor::White
@@ -76,7 +76,7 @@ impl From<Rgb565> for EpdColor {
 
 impl From<Rgb888> for EpdColor {
     fn from(value: Rgb888) -> Self {
-        if (value.r() > 0) {
+        if value.r() > 0 {
             EpdColor::Black
         } else {
             EpdColor::White
